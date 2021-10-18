@@ -18,7 +18,7 @@ struct ContentView<Presenter: TestPresenting>: View {
     var body: some View {
         VStack(spacing: 20) {
             FooView(text: presenter.text)
-            BarView(text: presenter.randomString, doThing: presenter.actions.doAction)
+            BarView(text: presenter.randomString, doThing: presenter.doThing)
             Button("Increment") {
                 presenter.increment()
             }
@@ -48,7 +48,12 @@ struct InnocentView: View {
     }
 }
 
-struct BarView: View {
+struct BarView: View, Equatable {
+
+    static func == (lhs: BarView, rhs: BarView) -> Bool {
+        lhs.text == rhs.text
+    }
+
     let text: String
     let doThing: () -> Void
 
@@ -66,19 +71,12 @@ protocol TestPresenting: ObservableObject {
     var randomString: String { get }
     func increment()
     func doThing()
-    var actions: TestPresenter.Actions { get }
 }
 
 class TestPresenter: TestPresenting {
 
-    struct Actions {
-        let doAction: () -> Void
-    }
-
     @Published var count: Int = 0
     @Published var randomString = "Random"
-
-    lazy var actions = Actions(doAction: self.doThing)
 
     var text: String {
         "Foo \(count)"
